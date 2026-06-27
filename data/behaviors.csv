@@ -1,0 +1,6 @@
+"Epic","Feature","Story","FAILED","BROKEN","PASSED","SKIPPED","UNKNOWN"
+"Usuários","CRUD de Usuários","Deletar usuário","0","0","1","0","0"
+"Usuários","CRUD de Usuários","Pesquisar usuário pelo Id","0","0","1","0","0"
+"Usuários","CRUD de Usuários","Criar usuário comum","0","0","1","0","0"
+"Usuários","CRUD de Usuários","Criar usuário administrador","0","0","1","0","0"
+"Usuários","CRUD de Usuários","Atualizar usuário","0","0","1","0","0"
