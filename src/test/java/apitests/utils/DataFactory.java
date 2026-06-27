@@ -27,6 +27,33 @@ public class DataFactory {
         );
     }
 
+    public static User generateRegularUserWithoutEmail() {
+        return new User(
+                faker.name().fullName(),
+                "",
+                "Test@12345",
+                "false"
+        );
+    }
+
+    public static User generateRegularUserWithoutPassword() {
+        return new User(
+                faker.name().fullName(),
+                faker.internet().emailAddress(),
+                "",
+                "false"
+        );
+    }
+
+    public static User generateRegularUserWithoutEmailPassword() {
+        return new User(
+                faker.name().fullName(),
+                "",
+                "",
+                "false"
+        );
+    }
+
     public static User generateUserWithEmail(String email) {
         return new User(
                 faker.name().fullName(),
@@ -51,6 +78,15 @@ public class DataFactory {
 
     public static String generateName() {
         return faker.name().fullName();
+    }
+
+    public static String generateInvalidUserId() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder id = new StringBuilder(16);
+        for (int i = 0; i < 16; i++) {
+            id.append(characters.charAt(faker.number().numberBetween(0, characters.length())));
+        }
+        return id.toString();
     }
 
 }
