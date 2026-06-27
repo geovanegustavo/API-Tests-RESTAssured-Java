@@ -48,6 +48,14 @@ jobs:
         if: always()
         run: mvn allure:report
 
+      - name: 📂 Copiar histórico para o relatório publicado
+        if: always()
+        run: |
+          mkdir -p target/site/allure-maven-plugin/history
+          if [ -d allure-history ]; then
+            cp -r allure-history/. target/site/allure-maven-plugin/history/
+          fi
+
       - name: 💾 Salvar histórico para a próxima execução
         if: always()
         run: |
