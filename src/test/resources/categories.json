@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Falhas de contrato (JSON Schema)",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*doesn't match the expected JSON schema.*"
+  },
+  {
+    "name": "Falhas de asserção de status code",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*Expected status code.*"
+  },
+  {
+    "name": "Falhas de asserção de body",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*JSON path.*doesn't match.*"
+  },
+  {
+    "name": "Erros de conexão com a API",
+    "matchedStatuses": ["broken"],
+    "messageRegex": ".*Connection refused.*|.*Unable to connect.*|.*SocketException.*"
+  },
+  {
+    "name": "Erros inesperados",
+    "matchedStatuses": ["broken"]
+  }
+]
