@@ -176,5 +176,4 @@ public class AuthTests {
                 .body("email", equalTo("email deve ser um email válido"));
     }
 
-    // FIM -----------
 }

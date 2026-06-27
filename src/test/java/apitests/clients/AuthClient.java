@@ -2,10 +2,8 @@ package apitests.clients;
 
 import apitests.config.ApiConfig;
 import apitests.models.AuthToken;
+import apitests.models.LoginRequest;
 import io.restassured.response.Response;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
@@ -18,9 +16,7 @@ public class AuthClient {
     private static final String LOGIN_PATH = "/login";
 
     public Response login(String email, String password) {
-        Map<String, String> body = new HashMap<>();
-        body.put("email", email);
-        body.put("password", password);
+        LoginRequest body = new LoginRequest(email, password);
 
         return given()
                 .spec(ApiConfig.getRequestSpec())
