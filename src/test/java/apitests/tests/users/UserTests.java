@@ -241,4 +241,40 @@ public class UserTests {
                 .body(matchesJsonSchemaInClasspath("schemas/users/email-already-exists-schema.json"))
                 .body("message", equalTo("Este email já está sendo usado"));
     }
+
+    /**
+     * INÍCIO DE BLOCO DOS TESTES
+     * TESTES E2E
+     */
+
+    @Test
+    @Owner("Geovane")
+    @Story("Executar fluxo completo do ciclo de vida do usuário")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida a completa execução do ciclo de vida do usuário")
+    public void shouldExecuteFullUserLifecycle() {
+        // Criar o usuário
+        User user = DataFactory.generateRegularUser();
+        String userId = userClient.createUser(user)
+                .then().statusCode(201)
+                .extract().jsonPath().getString("_id");
+
+        // Pesquisar o usuário
+        userClient.getUserById(userId)
+                .then().statusCode(200)
+                .body("_id", equalTo(userId));
+
+        // Editar o usuário
+        User updatedUser = DataFactory.generateRegularUser();
+        userClient.updateUser(userId, updatedUser, "")
+                .then().statusCode(200);
+
+        // Deletar o usuário
+        userClient.deleteUser(userId, "")
+                .then().statusCode(200);
+
+        // Confirmar exclusão do usuário
+        userClient.getUserById(userId)
+                .then().statusCode(400);
+    }
 }
