@@ -261,6 +261,21 @@ public class UserTests {
                 .body("message", equalTo("Este email já está sendo usado"));
     }
 
+    @Test
+    @Owner("Gustavo")
+    @Story("Não deletar usuário inexistente")
+    @Severity(SeverityLevel.MINOR)
+    @Description("Valida a não exclusão de dados do usuário inexistente e verifica o JSON Schema da resposta")
+    public void shouldNotDeleteUser() {
+        String nonExistentId = DataFactory.generateInvalidUserId();
+
+        userClient.deleteUser(nonExistentId, "")
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/users/not-delete-user-schema.json"))
+                .body("message", equalTo("Nenhum registro excluído"));
+    }
+
     /**
      * INÍCIO DE BLOCO DOS TESTES
      * TESTES E2E
