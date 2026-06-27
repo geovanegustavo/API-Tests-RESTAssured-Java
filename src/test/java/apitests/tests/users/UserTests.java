@@ -34,8 +34,7 @@ public class UserTests {
     }
 
     /**
-     * INÍCIO DE BLOCO DOS TESTES
-     * TESTES POSITIVOS
+     * INÍCIO DE BLOCO DE TESTES POSITIVOS
      */
 
     @Test
@@ -151,8 +150,7 @@ public class UserTests {
     }
 
     /**
-     * INÍCIO DE BLOCO DOS TESTES
-     * TESTES NEGATIVOS
+     * INÍCIO DE BLOCO DE TESTES NEGATIVOS
      */
 
     @Test
@@ -277,8 +275,7 @@ public class UserTests {
     }
 
     /**
-     * INÍCIO DE BLOCO DOS TESTES
-     * TESTES E2E
+     * INÍCIO DE BLOCO DE TESTES END-TO-END
      */
 
     @Test
