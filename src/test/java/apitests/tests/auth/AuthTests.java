@@ -6,6 +6,7 @@ import apitests.models.User;
 import apitests.utils.DataFactory;
 import io.qameta.allure.*;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -58,6 +59,7 @@ public class AuthTests {
         userIdToCleanUp = response.jsonPath().getString("_id");
         assertNotNull(userIdToCleanUp);
 
+        // Autenticação do usuário
         authClient.login(user.getEmail(), user.getPassword())
                 .then()
                 .statusCode(200)
@@ -65,6 +67,44 @@ public class AuthTests {
                 .body("message", equalTo("Login realizado com sucesso"))
                 .body("authorization", startsWith("Bearer "))
                 .body("authorization", notNullValue());
+    }
+
+    @Test
+    @Owner("Gustavo")
+    @Story("Token deve ser válido")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Token retornado deve ser utilizável em endpoints protegidos")
+    public void tokenShouldBeValid() {
+        // Criação do usuário
+        User user = DataFactory.generateAdminUser();
+
+        String userEmail = user.getEmail();
+        String userPassword = user.getPassword();
+
+        var response = userClient.createUser(user)
+                .then()
+                .statusCode(201)
+                .body(matchesJsonSchemaInClasspath("schemas/users/create-user-schema.json"))
+                .body("message", equalTo("Cadastro realizado com sucesso"))
+                .body("_id", notNullValue())
+                .extract().response();
+
+        userIdToCleanUp = response.jsonPath().getString("_id");
+        assertNotNull(userIdToCleanUp);
+
+        // Autenticação do usuário
+        authClient.login(userEmail, userPassword)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/auth/login-schema.json"))
+                .body("message", equalTo("Login realizado com sucesso"))
+                .body("authorization", startsWith("Bearer "))
+                .body("authorization", notNullValue());
+
+        String token = authClient.getToken(userEmail, userPassword);
+
+        Assertions.assertNotNull(token);
+        Assertions.assertTrue(token.startsWith("Bearer "), "Token deve iniciar com 'Bearer '");
     }
 
     // FIM -----------

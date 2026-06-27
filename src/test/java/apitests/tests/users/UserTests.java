@@ -275,7 +275,7 @@ public class UserTests {
     }
 
     /**
-     * INÍCIO DE BLOCO DE TESTES END-TO-END
+     * INÍCIO DE BLOCO DE TESTES "CAMINHO FELIZ"
      */
 
     @Test
@@ -286,42 +286,42 @@ public class UserTests {
     public void shouldExecuteFullUserLifecycle() {
         User user = DataFactory.generateRegularUser();
 
-        String userId = criarUsuarioE2E(user);
-        buscarUsuarioPorId(userId);
-        editarUsuario(userId);
-        deletarUsuario(userId);
-        confirmarExclusao(userId);
+        String userId = createUser(user);
+        returnUserById(userId);
+        updateUser(userId);
+        deleteUser(userId);
+        confirmDeletion(userId);
     }
 
     @Step("Criar usuário")
-    private String criarUsuarioE2E(User user) {
+    private String createUser(User user) {
         return userClient.createUser(user)
                 .then().statusCode(201)
                 .extract().jsonPath().getString("_id");
     }
 
     @Step("Buscar usuário por ID")
-    private void buscarUsuarioPorId(String userId) {
+    private void returnUserById(String userId) {
         userClient.getUserById(userId)
                 .then().statusCode(200)
                 .body("_id", equalTo(userId));
     }
 
     @Step("Editar usuário")
-    private void editarUsuario(String userId) {
+    private void updateUser(String userId) {
         User updatedUser = DataFactory.generateRegularUser();
         userClient.updateUser(userId, updatedUser, "")
                 .then().statusCode(200);
     }
 
     @Step("Deletar usuário")
-    private void deletarUsuario(String userId) {
+    private void deleteUser(String userId) {
         userClient.deleteUser(userId, "")
                 .then().statusCode(200);
     }
 
     @Step("Confirmar exclusão do usuário")
-    private void confirmarExclusao(String userId) {
+    private void confirmDeletion(String userId) {
         userClient.getUserById(userId)
                 .then().statusCode(400)
                 .body("message", equalTo("Usuário não encontrado"));
