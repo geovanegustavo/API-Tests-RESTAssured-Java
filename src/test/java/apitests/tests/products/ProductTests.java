@@ -90,4 +90,135 @@ public class ProductTests {
         productIdToCleanUp = response.jsonPath().getString("_id");
         assertNotNull(productIdToCleanUp);
     }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Pesquisar produto pelo Id")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Valida pesquisa de dados de produto por ID e verifica o JSON Schema da resposta")
+    public void shouldGetProductById() {
+        Product product = DataFactory.generateProduct();
+
+        var response = productClient.createProduct(product, token)
+                .then()
+                .statusCode(201)
+                .extract().response();
+
+        productIdToCleanUp = response.jsonPath().getString("_id");
+        assertNotNull(productIdToCleanUp);
+
+        productClient.getProductById(productIdToCleanUp)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/products/get-product-by-id-schema.json"))
+                .body("_id", equalTo(productIdToCleanUp));
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Atualizar produto")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Valida edição de dados do produto com dados dinâmicos e verifica o JSON Schema da resposta")
+    public void shouldUpdateProductSuccessfully() {
+        Product initialProduct = DataFactory.generateProduct();
+        Product updatedProduct = DataFactory.generateProduct();
+
+        // 1. Cria o produto inicial para atualizar
+        var response = productClient.createProduct(initialProduct, token)
+                .then()
+                .statusCode(201)
+                .extract().response();
+
+        productIdToCleanUp = response.jsonPath().getString("_id");
+        assertNotNull(productIdToCleanUp);
+
+        // 2. Edita o produto
+        productClient.updateProduct(productIdToCleanUp, updatedProduct, token)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/products/update-product-schema.json"))
+                .body("message", equalTo("Registro alterado com sucesso"));
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Deletar produto")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Valida exclusão de dados do produto com dados dinâmicos e verifica o JSON Schema da resposta")
+    public void shouldDeleteProductSuccessfully() {
+        Product product = DataFactory.generateProduct();
+
+        var response = productClient.createProduct(product, token)
+                .then()
+                .statusCode(201)
+                .extract().response();
+
+        String productIdToDelete = response.jsonPath().getString("_id");
+        assertNotNull(productIdToDelete);
+
+        // Como esse teste já valida a exclusão, não precisa delegar ao @AfterEach
+        productClient.deleteProduct(productIdToDelete, token)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/products/delete-product-schema.json"))
+                .body("message", equalTo("Registro excluído com sucesso"));
+    }
+
+    /**
+     * INÍCIO DE BLOCO DE TESTES NEGATIVOS
+     */
+
+
+    /**
+     * INÍCIO DE BLOCO DE TESTES "CAMINHO FELIZ"
+     */
+
+    @Test
+    @Owner("Geovane")
+    @Story("Executar fluxo feliz do ciclo de vida do produto")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida a completa execução do ciclo de vida do produto: criação, busca, edição, exclusão e confirmação de exclusão")
+    public void shouldExecuteFullProductLifecycle() {
+        Product product = DataFactory.generateProduct();
+
+        String productId = createProduct(product);
+        returnProductById(productId);
+        updateProduct(productId);
+        deleteProduct(productId);
+        confirmDeletion(productId);
+    }
+
+    @Step("Criar produto")
+    private String createProduct(Product product) {
+        return productClient.createProduct(product, token)
+                .then().statusCode(201)
+                .extract().jsonPath().getString("_id");
+    }
+
+    @Step("Buscar produto por ID")
+    private void returnProductById(String productId) {
+        productClient.getProductById(productId)
+                .then().statusCode(200)
+                .body("_id", equalTo(productId));
+    }
+
+    @Step("Editar produto")
+    private void updateProduct(String productId) {
+        Product updateProduct = DataFactory.generateProduct();
+        productClient.updateProduct(productId, updateProduct, token)
+                .then().statusCode(200);
+    }
+
+    @Step("Deletar produto")
+    private void deleteProduct(String productId) {
+        productClient.deleteProduct(productId, token)
+                .then().statusCode(200);
+    }
+
+    @Step("Confirmar exclusão do produto")
+    private void confirmDeletion(String productId) {
+        productClient.getProductById(productId)
+                .then().statusCode(400)
+                .body("message", equalTo("Produto não encontrado"));
+    }
 }

@@ -280,7 +280,7 @@ public class UserTests {
 
     @Test
     @Owner("Geovane")
-    @Story("Executar fluxo completo do ciclo de vida do usuário")
+    @Story("Executar fluxo feliz do ciclo de vida do usuário")
     @Severity(SeverityLevel.BLOCKER)
     @Description("Valida a completa execução do ciclo de vida do usuário: criação, busca, edição, exclusão e confirmação de exclusão")
     public void shouldExecuteFullUserLifecycle() {
