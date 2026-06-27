@@ -168,6 +168,29 @@ public class ProductTests {
      * INÍCIO DE BLOCO DE TESTES NEGATIVOS
      */
 
+    // Cadastrar produto existente
+
+    // Cadastrar produto sem token
+    @Test
+    @Owner("Geovane")
+    @Story("Tentar criar produto sem token")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida criação de produto sem token e verifica o JSON Schema da resposta")
+    public void shouldNotCreateProductSuccessfully() {
+        Product product = DataFactory.generateProduct();
+
+        var response = productClient.createProduct(product, "")
+                .then()
+                .statusCode(401)
+                .body(matchesJsonSchemaInClasspath("schemas/products/unauthorized-schema.json"))
+                .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
+    }
+
+    // Cadastrar produto com usuário comum
+
+    // Editar produto inexistente
+
+    // Excluir produto inexistente
 
     /**
      * INÍCIO DE BLOCO DE TESTES "CAMINHO FELIZ"
