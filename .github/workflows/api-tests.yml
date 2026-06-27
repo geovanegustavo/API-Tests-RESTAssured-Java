@@ -24,14 +24,46 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: 📥 Download do histórico anterior do Allure
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-history
+          path: allure-history/
+        continue-on-error: true
+
+      - name: 📂 Restaurar histórico para a execução atual
+        if: always()
+        run: |
+          mkdir -p target/allure-results/history
+          if [ -d allure-history ]; then
+            cp -r allure-history/. target/allure-results/history/
+          fi
+
       - name: 🧪 Executar testes
         env:
           BASE_URL: https://serverest.dev
-        run: mvn clean test -Dbase.url=$BASE_URL
+        run: mvn test -Dbase.url=$BASE_URL
 
       - name: 📊 Gerar relatório Allure
         if: always()
         run: mvn allure:report
+
+      - name: 💾 Salvar histórico para a próxima execução
+        if: always()
+        run: |
+          mkdir -p allure-history
+          if [ -d target/site/allure-maven-plugin/history ]; then
+            cp -r target/site/allure-maven-plugin/history/. allure-history/
+          fi
+
+      - name: 📤 Upload do histórico como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-history
+          path: allure-history/
+          retention-days: 90
+          overwrite: true
 
       - name: 📤 Upload dos resultados Allure
         if: always()
@@ -40,6 +72,7 @@ jobs:
           name: allure-results
           path: target/allure-results/
           retention-days: 30
+          overwrite: true
 
       - name: 🌐 Deploy do relatório no GitHub Pages
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'

@@ -163,7 +163,7 @@ public class UserTests {
     public void shouldReturn400WhenEmailIsBlank() {
         User user = DataFactory.generateRegularUserWithoutEmail();
 
-        var response = userClient.createUser(user)
+        userClient.createUser(user)
                 .then()
                 .statusCode(400)
                 .body(matchesJsonSchemaInClasspath("schemas/users/email-is-blank-schema.json"))
@@ -178,7 +178,7 @@ public class UserTests {
     public void shouldReturn400WhenPasswordIsBlank() {
         User user = DataFactory.generateRegularUserWithoutPassword();
 
-        var response = userClient.createUser(user)
+        userClient.createUser(user)
                 .then()
                 .statusCode(400)
                 .body(matchesJsonSchemaInClasspath("schemas/users/password-is-blank-schema.json"))
@@ -193,12 +193,31 @@ public class UserTests {
     public void shouldReturn400WhenEmailAndPasswordAreBlank() {
         User user = DataFactory.generateRegularUserWithoutEmailPassword();
 
-        var response = userClient.createUser(user)
+        userClient.createUser(user)
                 .then()
                 .statusCode(400)
                 .body(matchesJsonSchemaInClasspath("schemas/users/email-password-are-blank-schema.json"))
                 .body("email", equalTo("email não pode ficar em branco"))
                 .body("password", equalTo("password não pode ficar em branco"));
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Editar usuário inexistente")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Valida edição de dados de usuário inexistente com dados dinâmicos e verifica o JSON Schema da resposta")
+    public void shouldUpdateNonExistentUser() {
+        User user = DataFactory.generateRegularUser();
+        String nonExistentId = DataFactory.generateInvalidUserId();
+
+        var response = userClient.updateUser(nonExistentId, user, "")
+                .then()
+                .statusCode(201)
+                .body(matchesJsonSchemaInClasspath("schemas/users/create-user-schema.json"))
+                .body("message", equalTo("Cadastro realizado com sucesso"))
+                .extract().response();
+
+        userIdToCleanUp = response.jsonPath().getString("_id");
     }
 
     @Test
@@ -251,30 +270,48 @@ public class UserTests {
     @Owner("Geovane")
     @Story("Executar fluxo completo do ciclo de vida do usuário")
     @Severity(SeverityLevel.BLOCKER)
-    @Description("Valida a completa execução do ciclo de vida do usuário")
+    @Description("Valida a completa execução do ciclo de vida do usuário: criação, busca, edição, exclusão e confirmação de exclusão")
     public void shouldExecuteFullUserLifecycle() {
-        // Criar o usuário
         User user = DataFactory.generateRegularUser();
-        String userId = userClient.createUser(user)
+
+        String userId = criarUsuarioE2E(user);
+        buscarUsuarioPorId(userId);
+        editarUsuario(userId);
+        deletarUsuario(userId);
+        confirmarExclusao(userId);
+    }
+
+    @Step("Criar usuário")
+    private String criarUsuarioE2E(User user) {
+        return userClient.createUser(user)
                 .then().statusCode(201)
                 .extract().jsonPath().getString("_id");
+    }
 
-        // Pesquisar o usuário
+    @Step("Buscar usuário por ID")
+    private void buscarUsuarioPorId(String userId) {
         userClient.getUserById(userId)
                 .then().statusCode(200)
                 .body("_id", equalTo(userId));
+    }
 
-        // Editar o usuário
+    @Step("Editar usuário")
+    private void editarUsuario(String userId) {
         User updatedUser = DataFactory.generateRegularUser();
         userClient.updateUser(userId, updatedUser, "")
                 .then().statusCode(200);
+    }
 
-        // Deletar o usuário
+    @Step("Deletar usuário")
+    private void deletarUsuario(String userId) {
         userClient.deleteUser(userId, "")
                 .then().statusCode(200);
+    }
 
-        // Confirmar exclusão do usuário
+    @Step("Confirmar exclusão do usuário")
+    private void confirmarExclusao(String userId) {
         userClient.getUserById(userId)
-                .then().statusCode(400);
+                .then().statusCode(400)
+                .body("message", equalTo("Usuário não encontrado"));
     }
 }
