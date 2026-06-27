@@ -39,6 +39,7 @@ public class UserTests {
      */
 
     @Test
+    @Owner("Geovane")
     @Story("Criar usuário administrador")
     @Severity(SeverityLevel.BLOCKER)
     @Description("Valida criação de admin com dados dinâmicos e verifica o JSON Schema da resposta")
@@ -58,6 +59,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Criar usuário comum")
     @Severity(SeverityLevel.BLOCKER)
     @Description("Valida criação de usuário comum com dados dinâmicos e verifica o JSON Schema da resposta")
@@ -77,6 +79,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Pesquisar usuário pelo Id")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Valida pesquisa de dados de usuário comum por ID e verifica o JSON Schema da resposta")
@@ -98,6 +101,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Atualizar usuário")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Valida edição de dados do usuário comum com dados dinâmicos e verifica o JSON Schema da resposta")
@@ -123,6 +127,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Deletar usuário")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Valida exclusão de dados do usuário comum com dados dinâmicos e verifica o JSON Schema da resposta")
@@ -151,6 +156,7 @@ public class UserTests {
      */
 
     @Test
+    @Owner("Geovane")
     @Story("Tentar cadastrar usuário com email em branco")
     @Severity(SeverityLevel.MINOR)
     @Description("Valida criação de usuário comum com email em branco e verifica o JSON Schema da resposta")
@@ -165,6 +171,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Tentar cadastrar usuário com senha em branco")
     @Severity(SeverityLevel.MINOR)
     @Description("Valida criação de usuário comum com senha em branco e verifica o JSON Schema da resposta")
@@ -179,6 +186,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Tentar cadastrar usuário com email e senha em branco")
     @Severity(SeverityLevel.MINOR)
     @Description("Valida criação de usuário comum com email e senha em branco e verifica o JSON Schema da resposta")
@@ -194,6 +202,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Tentar pesquisar usuário por Id inexistente")
     @Severity(SeverityLevel.MINOR)
     @Description("Valida pesquisa de dados de usuário comum por ID inexistente e verifica o JSON Schema da resposta")
@@ -208,6 +217,7 @@ public class UserTests {
     }
 
     @Test
+    @Owner("Geovane")
     @Story("Tentar criar usuário comum com email de usuário já existente")
     @Severity(SeverityLevel.BLOCKER)
     @Description("Valida criação de usuário comum com email já existente na base e verifica o JSON Schema da resposta")
