@@ -45,11 +45,11 @@ jobs:
         run: mvn test -Dbase.url=$BASE_URL
 
       - name: 📋 Copiar categories.json para allure-results
-          if: always()
-          run: |
-            if [ -f target/test-classes/categories.json ]; then
-              cp target/test-classes/categories.json target/allure-results/categories.json
-            fi
+        if: always()
+        run: |
+          if [ -f target/test-classes/categories.json ]; then
+            cp target/test-classes/categories.json target/allure-results/categories.json
+          fi
 
       - name: 📊 Gerar relatório Allure
         if: always()
