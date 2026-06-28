@@ -93,6 +93,19 @@ public class ProductTests {
 
     @Test
     @Owner("Geovane")
+    @Story("Pesquisar todos os produtos")
+    @Severity(SeverityLevel.TRIVIAL)
+    @Description("Valida pesquisa de dados de todos os produtos e verifica o JSON Schema da resposta")
+    public void shouldGetAllProducts() {
+        productClient.getAllProducts()
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/products/get-all-products-schema.json"))
+                .body("quantidade", notNullValue());
+    }
+
+    @Test
+    @Owner("Geovane")
     @Story("Pesquisar produto pelo Id")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Valida pesquisa de dados de produto por ID e verifica o JSON Schema da resposta")

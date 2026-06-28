@@ -79,6 +79,18 @@ public class UserTests {
 
     @Test
     @Owner("Geovane")
+    @Story("Pesquisar todos os usuários")
+    @Severity(SeverityLevel.TRIVIAL)
+    @Description("Valida pesquisa de dados de todos os usuários e verifica o JSON Schema da resposta")
+    public void shouldGetAllUsers() {
+        userClient.getAllUsers()
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/users/get-all-users-schema.json"));
+    }
+
+    @Test
+    @Owner("Geovane")
     @Story("Pesquisar usuário pelo Id")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Valida pesquisa de dados de usuário comum por ID e verifica o JSON Schema da resposta")
