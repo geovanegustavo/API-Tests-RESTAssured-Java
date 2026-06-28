@@ -218,7 +218,7 @@ public class UserTests {
     @Description("Valida edição de dados de usuário inexistente com dados dinâmicos e verifica o JSON Schema da resposta")
     public void shouldUpdateNonExistentUser() {
         User user = DataFactory.generateRegularUser();
-        String nonExistentId = DataFactory.generateInvalidUserId();
+        String nonExistentId = DataFactory.generateInvalidId();
 
         var response = userClient.updateUser(nonExistentId, user, "")
                 .then()
@@ -236,7 +236,7 @@ public class UserTests {
     @Severity(SeverityLevel.MINOR)
     @Description("Valida pesquisa de dados de usuário comum por ID inexistente e verifica o JSON Schema da resposta")
     public void shouldReturn400WithInvalidUserId() {
-        String invalidUserId = DataFactory.generateInvalidUserId();
+        String invalidUserId = DataFactory.generateInvalidId();
 
         userClient.getUserById(invalidUserId)
                 .then()
@@ -277,7 +277,7 @@ public class UserTests {
     @Severity(SeverityLevel.MINOR)
     @Description("Valida a não exclusão de dados do usuário inexistente e verifica o JSON Schema da resposta")
     public void shouldNotDeleteUser() {
-        String nonExistentId = DataFactory.generateInvalidUserId();
+        String nonExistentId = DataFactory.generateInvalidId();
 
         userClient.deleteUser(nonExistentId, "")
                 .then()

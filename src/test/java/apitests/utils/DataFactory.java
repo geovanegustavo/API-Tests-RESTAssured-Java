@@ -80,7 +80,7 @@ public class DataFactory {
         return faker.name().fullName();
     }
 
-    public static String generateInvalidUserId() {
+    public static String generateInvalidId() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder id = new StringBuilder(16);
         for (int i = 0; i < 16; i++) {

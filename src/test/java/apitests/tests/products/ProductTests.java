@@ -129,6 +129,33 @@ public class ProductTests {
 
     @Test
     @Owner("Geovane")
+    @Story("Pesquisar produto pelo Nome")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Valida pesquisa de dados de produto por nome e verifica o JSON Schema da resposta")
+    public void shouldGetProductByName() {
+        Product product = DataFactory.generateProduct();
+
+        var response = productClient.createProduct(product, token)
+                .then()
+                .statusCode(201)
+                .extract().response();
+
+        productIdToCleanUp = response.jsonPath().getString("_id");
+        assertNotNull(productIdToCleanUp);
+
+        String productName = product.getNome();
+
+        productClient.getProductByName(productName)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/products/get-all-products-schema.json"))
+                .body("quantidade", equalTo(1))
+                .body("produtos[0].nome", equalTo(productName))
+                .body("produtos[0]._id", equalTo(productIdToCleanUp));
+    }
+
+    @Test
+    @Owner("Geovane")
     @Story("Atualizar produto")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Valida edição de dados do produto com dados dinâmicos e verifica o JSON Schema da resposta")
@@ -181,9 +208,31 @@ public class ProductTests {
      * INÍCIO DE BLOCO DE TESTES NEGATIVOS
      */
 
-    // Cadastrar produto existente
+    @Test
+    @Owner("Geovane")
+    @Story("Tentar criar produto com nome já existente")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida que a API rejeita criação de produto com nome duplicado e verifica o JSON Schema da resposta")
+    public void shouldReturn400WhenProductAlreadyExists() {
+        Product product = DataFactory.generateProduct();
 
-    // Cadastrar produto sem token
+        // 1. Cria o produto inicial
+        var response = productClient.createProduct(product, token)
+                .then()
+                .statusCode(201)
+                .extract().response();
+
+        productIdToCleanUp = response.jsonPath().getString("_id");
+        assertNotNull(productIdToCleanUp);
+
+        // 2. Tenta criar produto com o mesmo nome
+        productClient.createProduct(product, token)
+                .then()
+                .statusCode(400)
+                .body(matchesJsonSchemaInClasspath("schemas/products/product-already-exists-schema.json"))
+                .body("message", equalTo("Já existe produto com esse nome"));
+    }
+
     @Test
     @Owner("Geovane")
     @Story("Tentar criar produto sem token")
@@ -199,11 +248,74 @@ public class ProductTests {
                 .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
     }
 
-    // Cadastrar produto com usuário comum
+    @Test
+    @Owner("Geovane")
+    @Story("Tentar criar produto com usuário comum")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida que usuário comum não pode criar produto e verifica o JSON Schema da resposta")
+    public void shouldReturn403WhenRegularUserCreatesProduct() {
+        // 1. Cria um usuário comum
+        User regularUser = DataFactory.generateRegularUser();
 
-    // Editar produto inexistente
+        var userResponse = userClient.createUser(regularUser)
+                .then()
+                .statusCode(201)
+                .extract().response();
 
-    // Excluir produto inexistente
+        String regularUserId = userResponse.jsonPath().getString("_id");
+        assertNotNull(regularUserId);
+
+        // 2. Obtém token do usuário comum
+        String regularUserToken = authClient.getToken(regularUser.getEmail(), regularUser.getPassword());
+
+        // 3. Tenta criar produto com token de usuário comum
+        Product product = DataFactory.generateProduct();
+
+        try {
+            productClient.createProduct(product, regularUserToken)
+                    .then()
+                    .statusCode(403)
+                    .body(matchesJsonSchemaInClasspath("schemas/products/forbidden-schema.json"))
+                    .body("message", equalTo("Rota exclusiva para administradores"));
+        } finally {
+            // 4. Garante limpeza do usuário comum independente do resultado
+            userClient.deleteUser(regularUserId, token);
+        }
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Editar produto inexistente")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Valida edição de dados de produto inexistente e verifica o JSON Schema da resposta")
+    public void shouldUpdateNonExistentProduct() {
+        Product product = DataFactory.generateProduct();
+        String nonExistentId = DataFactory.generateInvalidId();
+
+        var response = productClient.updateProduct(nonExistentId, product, token)
+                .then()
+                .statusCode(201)
+                .body(matchesJsonSchemaInClasspath("schemas/products/create-product-schema.json"))
+                .body("message", equalTo("Cadastro realizado com sucesso"))
+                .extract().response();
+
+        productIdToCleanUp = response.jsonPath().getString("_id");
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Tentar deletar produto inexistente")
+    @Severity(SeverityLevel.MINOR)
+    @Description("Valida tentativa de exclusão de produto com ID inexistente e verifica o JSON Schema da resposta")
+    public void shouldReturn200WhenDeletingNonExistentProduct() {
+        String nonExistentProductId = DataFactory.generateInvalidId();
+
+        productClient.deleteProduct(nonExistentProductId, token)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/products/delete-non-existent-product-schema.json"))
+                .body("message", equalTo("Nenhum registro excluído"));
+    }
 
     /**
      * INÍCIO DE BLOCO DE TESTES "CAMINHO FELIZ"

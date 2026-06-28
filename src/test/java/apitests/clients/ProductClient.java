@@ -35,6 +35,14 @@ public class ProductClient {
                 .get(PRODUCTS_PATH + "/" + id);
     }
 
+    public Response getProductByName(String nome) {
+        return given()
+                .spec(ApiConfig.getRequestSpec())
+                .queryParam("nome", nome)
+                .when()
+                .get(PRODUCTS_PATH);
+    }
+
     public Response updateProduct(String id, Product product, String token) {
         return given()
                 .spec(ApiConfig.getAuthRequestSpec(token))
