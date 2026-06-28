@@ -1,6 +1,7 @@
 package apitests.tests.users;
 
 import apitests.clients.UserClient;
+import apitests.models.Product;
 import apitests.models.User;
 import apitests.utils.DataFactory;
 import io.qameta.allure.*;
@@ -109,6 +110,33 @@ public class UserTests {
                 .statusCode(200)
                 .body(matchesJsonSchemaInClasspath("schemas/users/get-user-by-id-schema.json"))
                 .body("_id", equalTo(userIdToCleanUp));
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Pesquisar usuário pelo Nome")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Valida pesquisa de dados de usuário por nome e verifica o JSON Schema da resposta")
+    public void shouldGetUserByName() {
+        User user = DataFactory.generateAdminUser();
+
+        var response = userClient.createUser(user)
+                .then()
+                .statusCode(201)
+                .extract().response();
+
+        userIdToCleanUp = response.jsonPath().getString("_id");
+        assertNotNull(userIdToCleanUp);
+
+        String productName = user.getNome();
+
+        userClient.getUserByName(productName)
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/users/get-all-users-schema.json"))
+                .body("quantidade", equalTo(1))
+                .body("usuarios[0].nome", equalTo(productName))
+                .body("usuarios[0]._id", equalTo(userIdToCleanUp));
     }
 
     @Test

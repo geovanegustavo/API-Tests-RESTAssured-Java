@@ -35,6 +35,14 @@ public class UserClient {
                 .get(USERS_PATH + "/" + id);
     }
 
+    public Response getUserByName(String nome) {
+        return given()
+                .spec(ApiConfig.getRequestSpec())
+                .queryParam("nome", nome)
+                .when()
+                .get(USERS_PATH);
+    }
+
     public Response updateUser(String id, User user, String token) {
         return given()
                 .spec(ApiConfig.getAuthRequestSpec(token))
