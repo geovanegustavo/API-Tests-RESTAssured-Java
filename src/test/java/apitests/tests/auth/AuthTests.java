@@ -6,7 +6,6 @@ import apitests.models.User;
 import apitests.utils.DataFactory;
 import io.qameta.allure.*;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -15,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Epic("Login")
-@Feature("Autenticação e Token")
+@Feature("Gestão de Autenticação e Token")
 public class AuthTests {
 
     private final AuthClient authClient = new AuthClient();

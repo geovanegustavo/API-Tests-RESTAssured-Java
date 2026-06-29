@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Epic("Usuários")
-@Feature("CRUD de Usuários")
+@Feature("Gestão de Usuários")
 public class UserTests {
 
     private final UserClient userClient = new UserClient();

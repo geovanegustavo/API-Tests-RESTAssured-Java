@@ -1,22 +1,55 @@
+# ============================================================
+# NOME DO PIPELINE
+# Aparece na aba Actions do GitHub
+# ============================================================
 name: API Tests - CI/CD Pipeline
 
+# ============================================================
+# GATILHOS — Define quando o pipeline é disparado
+# ============================================================
 on:
+
+  # Dispara ao fazer push nas branches principais
   push:
     branches: [ main, develop, master ]
+
+  # Dispara ao abrir ou atualizar um Pull Request para main, master ou develop
+  # Garante que os testes passam antes do merge em qualquer branch principal
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
+
+  # Dispara automaticamente todo dia às 06:00 UTC (03:00 Brasília)
+  # Detecta falhas causadas por mudanças externas na API
   schedule:
     - cron: '0 6 * * *'
 
+# ============================================================
+# JOBS — Conjunto de etapas que serão executadas
+# ============================================================
 jobs:
+
+  # Nome interno do job — usado como referência no GitHub Actions
   api-tests:
+
+    # Nome amigável exibido na aba Actions
     name: Run API Test Suite
+
+    # Sistema operacional onde o pipeline será executado
+    # ubuntu-latest = última versão estável do Ubuntu disponível no GitHub
     runs-on: ubuntu-latest
 
+    # --------------------------------------------------------
+    # STEPS — Etapas executadas em ordem dentro do job
+    # --------------------------------------------------------
     steps:
+
+      # Baixa o código do repositório na máquina do GitHub
       - name: 📥 Checkout do código
         uses: actions/checkout@v4
 
+      # Instala e configura o Java 17 no ambiente de execução
+      # distribution: temurin = OpenJDK da Eclipse Foundation
+      # cache: maven = cacheia as dependências do Maven entre execuções
       - name: ☕ Configurar Java 17
         uses: actions/setup-java@v4
         with:
@@ -24,6 +57,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # Tenta baixar o histórico de execuções anteriores do Allure
+      # O histórico é necessário para gerar o gráfico Trend
+      # continue-on-error: true = não falha na primeira execução (quando ainda não há histórico)
       - name: 📥 Download do histórico anterior do Allure
         uses: actions/download-artifact@v4
         with:
@@ -31,6 +67,9 @@ jobs:
           path: allure-history/
         continue-on-error: true
 
+      # Copia o histórico baixado para dentro da pasta allure-results
+      # O Allure lê o histórico dessa pasta ao gerar o relatório
+      # O "if [ -d allure-history ]" verifica se a pasta existe antes de copiar
       - name: 📂 Restaurar histórico para a execução atual
         if: always()
         run: |
@@ -39,11 +78,18 @@ jobs:
             cp -r allure-history/. target/allure-results/history/
           fi
 
+      # Executa todos os testes com Maven
+      # -Dbase.url=$BASE_URL passa a URL da ServeRest como system property
+      # O ApiConfig.java lê essa propriedade para definir a base URI
+      # continue-on-error: false = comportamento explícito — falha do teste falha o job
       - name: 🧪 Executar testes
         env:
           BASE_URL: https://serverest.dev
         run: mvn test -Dbase.url=$BASE_URL
+        continue-on-error: false
 
+      # Copia o categories.json para a pasta allure-results
+      # O Allure usa esse arquivo para agrupar falhas por categoria no relatório
       - name: 📋 Copiar categories.json para allure-results
         if: always()
         run: |
@@ -51,10 +97,16 @@ jobs:
             cp target/test-classes/categories.json target/allure-results/categories.json
           fi
 
+      # Gera o relatório HTML do Allure a partir dos resultados em target/allure-results
+      # O relatório é gerado em target/site/allure-maven-plugin
+      # if: always() = roda mesmo se os testes falharem — sempre queremos o relatório
       - name: 📊 Gerar relatório Allure
         if: always()
         run: mvn allure:report
 
+      # Copia o histórico gerado para dentro do relatório publicado
+      # Necessário para que o Trend apareça no GitHub Pages
+      # Sem esse passo o relatório é publicado sem o histórico
       - name: 📂 Copiar histórico para o relatório publicado
         if: always()
         run: |
@@ -63,6 +115,8 @@ jobs:
             cp -r allure-history/. target/site/allure-maven-plugin/history/
           fi
 
+      # Salva o histórico gerado pelo relatório atual
+      # Será usado como histórico da próxima execução
       - name: 💾 Salvar histórico para a próxima execução
         if: always()
         run: |
@@ -71,6 +125,8 @@ jobs:
             cp -r target/site/allure-maven-plugin/history/. allure-history/
           fi
 
+      # Persiste o histórico como artefato no GitHub por 90 dias
+      # overwrite: true = sobrescreve o artefato anterior em vez de criar um novo
       - name: 📤 Upload do histórico como artefato
         if: always()
         uses: actions/upload-artifact@v4
@@ -80,6 +136,8 @@ jobs:
           retention-days: 90
           overwrite: true
 
+      # Persiste os resultados brutos do Allure como artefato por 30 dias
+      # Permite baixar os arquivos .json e inspecionar os resultados manualmente
       - name: 📤 Upload dos resultados Allure
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,19 +147,28 @@ jobs:
           retention-days: 30
           overwrite: true
 
+      # Publica o relatório HTML no GitHub Pages
+      # if: always() garante publicação mesmo quando os testes falham
+      # Condição de branch garante que só publica na main ou master
+      # O relatório fica acessível em: https://geovanegustavo.github.io/API-Tests-RESTAssured-Java
+      # Atualizado para v4 — v3 usa Node 16 que está depreciado no GitHub Actions
       - name: 🌐 Deploy do relatório no GitHub Pages
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        uses: peaceiris/actions-gh-pages@v3
+        if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/site/allure-maven-plugin
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Token gerado automaticamente pelo GitHub
+          publish_dir: target/site/allure-maven-plugin  # Pasta que será publicada
 
+      # Gera um resumo da execução visível diretamente na aba Actions
+      # Sem precisar abrir os logs completos
+      # $GITHUB_STEP_SUMMARY é uma variável do GitHub que escreve no resumo da execução
       - name: ✅ Resumo da execução
         if: always()
         run: |
           echo "## 🧪 Resultado dos Testes" >> $GITHUB_STEP_SUMMARY
           echo "| Item | Valor |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Disparado por | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY          # Nome da branch
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY               # Hash do commit
+          echo "| Disparado por | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY      # Usuário que disparou
+          echo "| Relatório | [Ver Allure](https://geovanegustavo.github.io/API-Tests-RESTAssured-Java) |" >> $GITHUB_STEP_SUMMARY  # Link direto para o relatório

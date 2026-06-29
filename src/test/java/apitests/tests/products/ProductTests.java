@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Epic("Produtos")
-@Feature("CRUD de Produtos")
+@Feature("Gestão de Produtos")
 public class ProductTests {
 
     private final ProductClient productClient = new ProductClient();
