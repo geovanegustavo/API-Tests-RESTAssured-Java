@@ -22,16 +22,4 @@ public class EnvConfig {
         return value;
     }
 
-    // Banco de dados
-    public static String getDbUrl() {
-        return get("DB_URL", "jdbc:postgresql://localhost:5432/servetest_db");
-    }
-
-    public static String getDbUser() {
-        return get("DB_USER", "postgres");
-    }
-
-    public static String getDbPassword() {
-        return get("DB_PASSWORD", "postgres");
-    }
 }

@@ -14,7 +14,8 @@
           "preco": { "type": "number" },
           "descricao": { "type": "string" },
           "quantidade": { "type": "number" },
-          "_id": { "type": "string" }
+          "_id": { "type": "string" },
+          "imagem": { "type": "string" }
         },
         "additionalProperties": false
       }

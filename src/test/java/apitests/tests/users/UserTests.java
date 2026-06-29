@@ -1,7 +1,6 @@
 package apitests.tests.users;
 
 import apitests.clients.UserClient;
-import apitests.models.Product;
 import apitests.models.User;
 import apitests.utils.DataFactory;
 import io.qameta.allure.*;
@@ -128,14 +127,14 @@ public class UserTests {
         userIdToCleanUp = response.jsonPath().getString("_id");
         assertNotNull(userIdToCleanUp);
 
-        String productName = user.getNome();
+        String userName = user.getNome();
 
-        userClient.getUserByName(productName)
+        userClient.getUserByName(userName)
                 .then()
                 .statusCode(200)
                 .body(matchesJsonSchemaInClasspath("schemas/users/get-all-users-schema.json"))
                 .body("quantidade", equalTo(1))
-                .body("usuarios[0].nome", equalTo(productName))
+                .body("usuarios[0].nome", equalTo(userName))
                 .body("usuarios[0]._id", equalTo(userIdToCleanUp));
     }
 
