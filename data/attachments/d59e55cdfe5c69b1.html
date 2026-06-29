@@ -1,0 +1,31 @@
+<div>POST to https://serverest.dev/produtos</div>
+
+<h4>Body</h4>
+<div>
+    <pre class="preformated-text">
+{
+    &quot;nome&quot;: &quot;Rustic Iron Chair 835&quot;,
+    &quot;preco&quot;: 4915,
+    &quot;descricao&quot;: &quot;Perferendis magni occaecati.&quot;,
+    &quot;quantidade&quot;: 200
+}    </pre>
+</div>
+
+<h4>Headers</h4>
+<div>
+        <div>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsYXJhLnJhbWlyZXNAbGl2ZS5jb20iLCJwYXNzd29yZCI6IlRlc3RAMTIzNDUiLCJpYXQiOjE3ODI3MzAyMTgsImV4cCI6MTc4MjczMDgxOH0.fuSEEs1TTr2flup1ZKDUJlHWuN9M_2GXh4bG-X3YT68</div>
+        <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+        <div>Content-Type: application/json</div>
+</div>
+
+
+
+<h4>Curl</h4>
+<div>
+curl -v -X POST &#39;https://serverest.dev/produtos&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsYXJhLnJhbWlyZXNAbGl2ZS5jb20iLCJwYXNzd29yZCI6IlRlc3RAMTIzNDUiLCJpYXQiOjE3ODI3MzAyMTgsImV4cCI6MTc4MjczMDgxOH0.fuSEEs1TTr2flup1ZKDUJlHWuN9M_2GXh4bG-X3YT68&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;nome&quot;: &quot;Rustic Iron Chair 835&quot;,
+    &quot;preco&quot;: 4915,
+    &quot;descricao&quot;: &quot;Perferendis magni occaecati.&quot;,
+    &quot;quantidade&quot;: 200
+}&#39;
+</div>
