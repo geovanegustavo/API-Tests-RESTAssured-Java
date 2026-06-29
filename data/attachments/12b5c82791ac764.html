@@ -1,0 +1,31 @@
+<div>POST to https://serverest.dev/produtos</div>
+
+<h4>Body</h4>
+<div>
+    <pre class="preformated-text">
+{
+    &quot;nome&quot;: &quot;Fantastic Rubber Car 809&quot;,
+    &quot;preco&quot;: 4560,
+    &quot;descricao&quot;: &quot;Soluta dolorem quod ipsam occaecati ex autem.&quot;,
+    &quot;quantidade&quot;: 333
+}    </pre>
+</div>
+
+<h4>Headers</h4>
+<div>
+        <div>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNhbGViZS5zaW1vZXNAeWFob28uY29tIiwicGFzc3dvcmQiOiJUZXN0QDEyMzQ1IiwiaWF0IjoxNzgyNzM5MDg3LCJleHAiOjE3ODI3Mzk2ODd9.WQc2PAHgD_9Bw3UReNaFUOH6FNgljflXVw-mugptJTU</div>
+        <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+        <div>Content-Type: application/json</div>
+</div>
+
+
+
+<h4>Curl</h4>
+<div>
+curl -v -X POST &#39;https://serverest.dev/produtos&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNhbGViZS5zaW1vZXNAeWFob28uY29tIiwicGFzc3dvcmQiOiJUZXN0QDEyMzQ1IiwiaWF0IjoxNzgyNzM5MDg3LCJleHAiOjE3ODI3Mzk2ODd9.WQc2PAHgD_9Bw3UReNaFUOH6FNgljflXVw-mugptJTU&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;nome&quot;: &quot;Fantastic Rubber Car 809&quot;,
+    &quot;preco&quot;: 4560,
+    &quot;descricao&quot;: &quot;Soluta dolorem quod ipsam occaecati ex autem.&quot;,
+    &quot;quantidade&quot;: 333
+}&#39;
+</div>
