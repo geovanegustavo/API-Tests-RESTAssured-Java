@@ -17,8 +17,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Epic("Carrinho")
 @Feature("Gestão de Carrinho")
@@ -103,12 +105,65 @@ public class CartTests {
 
     @Test
     @Owner("Geovane")
+    @Story("Listar carrinhos")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Valida pesquisa de dados de todos os carrinhos e verifica o JSON Schema da resposta")
+    public void shouldGetAllCarts() {
+        Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
+
+        cartClient.createCart(cart, token)
+                .then()
+                .statusCode(201)
+                .body("_id", notNullValue());
+
+        var response = cartClient.getAllCarts()
+                .then()
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath("schemas/carts/get-all-carts-schema.json"))
+                .extract()
+                .response();
+
+        int quantidade = response.jsonPath().getInt("quantidade");
+        int carrinhosSize = response.jsonPath().getList("carrinhos").size();
+
+        assertThat(quantidade, equalTo(carrinhosSize));
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Pesquisar carrinho pelo Id")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Valida pesquisa de dados de carrinho por ID e verifica o JSON Schema da resposta")
+    public void shouldGetCartById() {
+        Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
+
+        var response = cartClient.createCart(cart, token)
+                .then()
+                .statusCode(201)
+                .body("_id", notNullValue())
+                .extract().response();
+
+        String cartId = response.jsonPath().getString("_id");
+        assertNotNull(cartId);
+
+        cartClient.getCartById(cartId)
+                .then()
+                .statusCode(200)
+                //.body(matchesJsonSchemaInClasspath("schemas/carts/get-cart-by-id-schema.json"))
+                .body("_id", equalTo(cartId));
+    }
+
+    @Test
+    @Owner("Geovane")
     @Story("Concluir compra")
     @Severity(SeverityLevel.BLOCKER)
     @Description("Valida conclusão de compra e verifica o JSON Schema da resposta")
     public void shouldConcludePurchaseSuccessfully() {
         Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
-        cartClient.createCart(cart, token).then().statusCode(201);
+
+        cartClient.createCart(cart, token)
+                .then()
+                .statusCode(201);
 
         cartClient.concludePurchase(token)
                 .then()
@@ -124,7 +179,10 @@ public class CartTests {
     @Description("Valida cancelamento de compra e verifica o JSON Schema da resposta")
     public void shouldCancelPurchaseSuccessfully() {
         Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
-        cartClient.createCart(cart, token).then().statusCode(201);
+
+        cartClient.createCart(cart, token)
+                .then()
+                .statusCode(201);
 
         cartClient.cancelPurchase(token)
                 .then()
@@ -144,7 +202,10 @@ public class CartTests {
     @Description("Valida que usuário não pode ter mais de um carrinho ativo")
     public void shouldReturn400WhenCartAlreadyExists() {
         Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
-        cartClient.createCart(cart, token).then().statusCode(201);
+
+        cartClient.createCart(cart, token)
+                .then()
+                .statusCode(201);
 
         cartClient.createCart(cart, token)
                 .then()

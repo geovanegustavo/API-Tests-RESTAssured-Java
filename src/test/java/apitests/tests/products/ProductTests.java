@@ -95,7 +95,7 @@ public class ProductTests {
     @Test
     @Owner("Geovane")
     @Story("Pesquisar todos os produtos")
-    @Severity(SeverityLevel.TRIVIAL)
+    @Severity(SeverityLevel.NORMAL)
     @Description("Valida pesquisa de dados de todos os produtos e verifica o JSON Schema da resposta")
     public void shouldGetAllProducts() {
         var response = productClient.getAllProducts()
