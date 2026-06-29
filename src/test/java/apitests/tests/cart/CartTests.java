@@ -149,7 +149,7 @@ public class CartTests {
         cartClient.getCartById(cartId)
                 .then()
                 .statusCode(200)
-                //.body(matchesJsonSchemaInClasspath("schemas/carts/get-cart-by-id-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/carts/get-cart-by-id-schema.json"))
                 .body("_id", equalTo(cartId));
     }
 
@@ -197,6 +197,21 @@ public class CartTests {
 
     @Test
     @Owner("Geovane")
+    @Story("Pesquisar carrinho pelo Id")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Valida pesquisa de dados de carrinho por ID e verifica o JSON Schema da resposta")
+    public void shouldReturn400WhenGetCartByNonExistentId() {
+        String cartId = DataFactory.generateInvalidId();
+
+        cartClient.getCartById(cartId)
+                .then()
+                .statusCode(400)
+                .body(matchesJsonSchemaInClasspath("schemas/carts/unauthorized-cart-schema.json"))
+                .body("message", equalTo("Carrinho não encontrado"));
+    }
+
+    @Test
+    @Owner("Geovane")
     @Story("Tentar criar segundo carrinho")
     @Severity(SeverityLevel.NORMAL)
     @Description("Valida que usuário não pode ter mais de um carrinho ativo")
@@ -213,4 +228,58 @@ public class CartTests {
                 .body(matchesJsonSchemaInClasspath("schemas/carts/cart-already-exists-schema.json"))
                 .body("message", equalTo("Não é permitido ter mais de 1 carrinho"));
     }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Criar carrinho")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida criação de carrinho com produto existente e verifica o JSON Schema da resposta")
+    public void shouldReturn401WhenCreatingCartWithoutToken() {
+        Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
+
+        cartClient.createCart(cart, "")
+                .then()
+                .statusCode(401)
+                .body(matchesJsonSchemaInClasspath("schemas/carts/unauthorized-cart-schema.json"))
+                .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Tentar concluir compra sem token")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida tentativa de conclusão de compra sem token e verifica erro 401")
+    public void shouldReturn401WhenConcludingPurchaseWithoutToken() {
+        Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
+
+        cartClient.createCart(cart, token)
+                .then()
+                .statusCode(201);
+
+        cartClient.concludePurchase("")
+                .then()
+                .statusCode(401)
+                .body(matchesJsonSchemaInClasspath("schemas/carts/unauthorized-cart-schema.json"))
+                .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
+    }
+
+    @Test
+    @Owner("Geovane")
+    @Story("Tentar cancelar compra sem token")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Valida tentativa de cancelamento de compra sem token e verifica erro 401")
+    public void shouldReturn401WhenCancelingPurchaseWithoutToken() {
+        Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
+
+        cartClient.createCart(cart, token)
+                .then()
+                .statusCode(201);
+
+        cartClient.cancelPurchase("")
+                .then()
+                .statusCode(401)
+                .body(matchesJsonSchemaInClasspath("schemas/carts/unauthorized-cart-schema.json"))
+                .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
+    }
+
 }

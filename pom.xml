@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.apitests.serverest</groupId>
-    <artifactId>api-test-framework-restassured</artifactId>
+    <artifactId>api-test-restassured-java</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
