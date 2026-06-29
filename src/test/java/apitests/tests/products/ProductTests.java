@@ -215,7 +215,6 @@ public class ProductTests {
      * INÍCIO DE BLOCO DE TESTES NEGATIVOS
      */
 
-    // Tentar criar produto com preco inválido
     @Test
     @Owner("Geovane")
     @Story("Tentar criar produto com preco inválido")
@@ -232,7 +231,6 @@ public class ProductTests {
                 .body("preco", equalTo("preco deve ser um número positivo"));
     }
 
-    // Tentar criar produto com preco zero
     @Test
     @Owner("Geovane")
     @Story("Tentar criar produto com preco zero")
@@ -249,7 +247,6 @@ public class ProductTests {
                 .body("preco", equalTo("preco deve ser um número positivo"));
     }
 
-    // Tentar criar produto com quantidade inválida
     @Test
     @Owner("Geovane")
     @Story("Tentar criar produto com quantidade inválida")
@@ -266,7 +263,6 @@ public class ProductTests {
                 .body("quantidade", equalTo("quantidade deve ser maior ou igual a 0"));
     }
 
-    // Tentar atualizar produto sem token
     @Test
     @Owner("Geovane")
     @Story("Tentar atualizar produto sem token")
@@ -293,7 +289,6 @@ public class ProductTests {
                 .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
     }
 
-    // Tentar deletar produto sem token
     @Test
     @Owner("Geovane")
     @Story("Tentar deletar produto sem token")
@@ -392,7 +387,6 @@ public class ProductTests {
         }
     }
 
-    // Tentar pesquisar produto por Id inexistente
     @Test
     @Owner("Geovane")
     @Story("Tentar pesquisar produto por Id inexistente")
@@ -425,6 +419,7 @@ public class ProductTests {
                 .extract().response();
 
         productIdToCleanUp = response.jsonPath().getString("_id");
+        assertNotNull(productIdToCleanUp);
     }
 
     @Test
@@ -443,7 +438,7 @@ public class ProductTests {
     }
 
     /**
-     * INÍCIO DE BLOCO DE TESTES "CAMINHO FELIZ"
+     * INÍCIO DE BLOCO DE TESTES E2E
      */
 
     @Test
@@ -455,7 +450,7 @@ public class ProductTests {
         Product product = DataFactory.generateProduct();
 
         String productId = createProduct(product);
-        returnProductById(productId);
+        getProductById(productId);
         updateProduct(productId);
         deleteProduct(productId);
         confirmDeletion(productId);
@@ -469,7 +464,7 @@ public class ProductTests {
     }
 
     @Step("Buscar produto por ID")
-    private void returnProductById(String productId) {
+    private void getProductById(String productId) {
         productClient.getProductById(productId)
                 .then().statusCode(200)
                 .body("_id", equalTo(productId));
