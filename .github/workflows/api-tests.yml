@@ -11,17 +11,12 @@ on:
 
   # Dispara ao fazer push nas branches principais
   push:
-    branches: [ main, develop, master ]
+    branches: [ master ]
 
   # Dispara ao abrir ou atualizar um Pull Request para main, master ou develop
   # Garante que os testes passam antes do merge em qualquer branch principal
   pull_request:
-    branches: [ main, master, develop ]
-
-  # Dispara automaticamente todo dia às 06:00 UTC (03:00 Brasília)
-  # Detecta falhas causadas por mudanças externas na API
-  schedule:
-    - cron: '0 6 * * *'
+    branches: [ master ]
 
 # ============================================================
 # JOBS — Conjunto de etapas que serão executadas
