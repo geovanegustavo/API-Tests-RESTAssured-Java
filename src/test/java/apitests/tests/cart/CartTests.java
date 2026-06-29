@@ -41,6 +41,7 @@ public class CartTests {
         User user = DataFactory.generateAdminUser();
         var userResponse = userClient.createUser(user)
                 .then().statusCode(201).extract().response();
+
         userIdToCleanUp = userResponse.jsonPath().getString("_id");
 
         // 2. Obtém token
@@ -50,6 +51,7 @@ public class CartTests {
         Product product = DataFactory.generateProduct();
         var productResponse = productClient.createProduct(product, token)
                 .then().statusCode(201).extract().response();
+
         productIdToCleanUp = productResponse.jsonPath().getString("_id");
     }
 
@@ -197,16 +199,16 @@ public class CartTests {
 
     @Test
     @Owner("Geovane")
-    @Story("Pesquisar carrinho pelo Id")
-    @Severity(SeverityLevel.CRITICAL)
-    @Description("Valida pesquisa de dados de carrinho por ID e verifica o JSON Schema da resposta")
+    @Story("Tentar pesquisar carrinho por Id inexistente")
+    @Severity(SeverityLevel.MINOR)
+    @Description("Valida pesquisa de carrinho por ID inexistente e verifica o JSON Schema da resposta")
     public void shouldReturn400WhenGetCartByNonExistentId() {
         String cartId = DataFactory.generateInvalidId();
 
         cartClient.getCartById(cartId)
                 .then()
                 .statusCode(400)
-                .body(matchesJsonSchemaInClasspath("schemas/carts/unauthorized-cart-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/carts/cart-not-found-schema.json"))
                 .body("message", equalTo("Carrinho não encontrado"));
     }
 
@@ -231,9 +233,9 @@ public class CartTests {
 
     @Test
     @Owner("Geovane")
-    @Story("Criar carrinho")
+    @Story("Tentar criar carrinho sem token")
     @Severity(SeverityLevel.BLOCKER)
-    @Description("Valida criação de carrinho com produto existente e verifica o JSON Schema da resposta")
+    @Description("Valida que a API rejeita criação de carrinho sem token e verifica o JSON Schema da resposta")
     public void shouldReturn401WhenCreatingCartWithoutToken() {
         Cart cart = new Cart(List.of(new CartItem(productIdToCleanUp, 1)));
 
