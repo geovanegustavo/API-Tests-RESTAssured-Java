@@ -302,14 +302,22 @@ public class ProductTests {
                 .statusCode(201)
                 .extract().response();
 
-        productIdToCleanUp = response.jsonPath().getString("_id");
-        assertNotNull(productIdToCleanUp);
+        String productId = response.jsonPath().getString("_id");
+        assertNotNull(productId);
 
-        productClient.deleteProduct(productIdToCleanUp, "")
-                .then()
-                .statusCode(401)
-                .body(matchesJsonSchemaInClasspath("schemas/products/unauthorized-schema.json"))
-                .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
+        try {
+            productClient.deleteProduct(productId, "")
+                    .then()
+                    .statusCode(401)
+                    .body(matchesJsonSchemaInClasspath("schemas/products/unauthorized-schema.json"))
+                    .body("message", equalTo("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais"));
+        } finally {
+            try {
+                productClient.deleteProduct(productId, token);
+            } catch (Exception e) {
+                System.err.println("Failed to clean up product: " + e.getMessage());
+            }
+        }
     }
 
     @Test
@@ -450,9 +458,11 @@ public class ProductTests {
         Product product = DataFactory.generateProduct();
 
         String productId = createProduct(product);
+        productIdToCleanUp = productId;
         getProductById(productId);
         updateProduct(productId);
         deleteProduct(productId);
+        productIdToCleanUp = null;
         confirmDeletion(productId);
     }
 

@@ -18,9 +18,9 @@ public class ApiConfig {
             EnvConfig.get("BASE_URL", "https://serverest.dev")
     );
 
-    private static RequestSpecification requestSpec;
+    private static volatile RequestSpecification requestSpec;
 
-    public static RequestSpecification getRequestSpec() {
+    public static synchronized RequestSpecification getRequestSpec() {
         if (requestSpec == null) {
             requestSpec = new RequestSpecBuilder()
                     .setBaseUri(BASE_URL)

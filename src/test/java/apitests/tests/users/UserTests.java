@@ -326,9 +326,11 @@ public class UserTests {
         User user = DataFactory.generateRegularUser();
 
         String userId = createUser(user);
+        userIdToCleanUp = userId;
         returnUserById(userId);
         updateUser(userId);
         deleteUser(userId);
+        userIdToCleanUp = null;
         confirmDeletion(userId);
     }
 

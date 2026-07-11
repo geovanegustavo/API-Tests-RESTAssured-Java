@@ -1,10 +1,16 @@
 package apitests.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CartItem {
     private String idProduto;
-    private int quantidade;
+    private Integer quantidade;
 
-    public CartItem(String idProduto, int quantidade) {
+    public CartItem() {
+    }
+
+    public CartItem(String idProduto, Integer quantidade) {
         this.idProduto = idProduto;
         this.quantidade = quantidade;
     }
@@ -12,6 +18,6 @@ public class CartItem {
     public String getIdProduto() { return idProduto; }
     public void setIdProduto(String idProduto) { this.idProduto = idProduto; }
 
-    public int getQuantidade() { return quantidade; }
-    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
 }

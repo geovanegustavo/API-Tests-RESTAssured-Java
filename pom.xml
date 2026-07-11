@@ -73,6 +73,7 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- JavaFaker - Geração de massa de dados -->
@@ -80,6 +81,7 @@
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>${faker.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- SLF4J Logging -->
@@ -87,6 +89,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- AspectJ - necessário para Allure -->
@@ -94,6 +97,7 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectj.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
