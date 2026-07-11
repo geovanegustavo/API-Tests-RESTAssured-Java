@@ -248,6 +248,23 @@ public class CartTests {
 
     @Test
     @Owner("Geovane")
+    @Story("Tentar criar carrinho com produto inexistente")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Valida tentativa de criar carrinho com produto inexistente e verifica erro 400")
+    public void shouldReturn400WhenCreatingCartWithNonExistentProduct() {
+        String productId = DataFactory.generateInvalidId();
+
+        Cart cart = new Cart(List.of(new CartItem(productId, 1)));
+
+        cartClient.createCart(cart, token)
+                .then()
+                .statusCode(400)
+                //.body(matchesJsonSchemaInClasspath("schemas/carts/create-cart-schema.json"))
+                .body("message", equalTo("Produto não encontrado"));
+    }
+
+    @Test
+    @Owner("Geovane")
     @Story("Tentar concluir compra sem token")
     @Severity(SeverityLevel.BLOCKER)
     @Description("Valida tentativa de conclusão de compra sem token e verifica erro 401")
