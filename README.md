@@ -36,16 +36,18 @@ Automated API testing project using **REST Assured** and **Java 17**, targeting 
 │   │       └── cart/CartTests.java          # Cart tests
 │   └── resources/
 │       ├── categories.json                  # Allure failure categories
-│       └── schemas/                         # JSON schemas (33 files)
-│           ├── auth/
-│           ├── users/
-│           ├── products/
-│           └── carts/
+│       └── schemas/                         # JSON schemas (36 files)
+│           ├── auth/                        # 5 schemas
+│           ├── users/                       # 11 schemas
+│           ├── products/                    # 12 schemas
+│           └── carts/                       # 8 schemas
 ```
 
 ---
 
 ## Technologies and Dependencies
+
+### Libraries
 
 | Technology | Version | Purpose |
 |---|---|---|
@@ -53,12 +55,20 @@ Automated API testing project using **REST Assured** and **Java 17**, targeting 
 | Maven | 3.6+ | Build tool |
 | REST Assured | 5.4.0 | REST API testing |
 | JSON Schema Validator | 5.4.0 | JSON schema validation |
-| JUnit 5 | 5.10.2 | Testing framework |
-| Allure | 2.25.0 | Report generation |
-| Jackson | 2.17.0 | JSON serialization/deserialization |
-| JavaFaker | 1.0.2 | Test data generation |
-| SLF4J | 2.0.12 | Logging |
-| AspectJ | 1.9.22 | Weaving for Allure |
+| JUnit 5 (Jupiter) | 5.10.2 | Testing framework |
+| Allure JUnit 5 | 2.25.0 | Allure integration for JUnit 5 |
+| Allure REST Assured | 2.25.0 | Automatic request/response capture in Allure reports |
+| Jackson Databind | 2.17.0 | JSON serialization/deserialization |
+| JavaFaker | 1.0.2 | Test data generation (pt-BR locale) |
+| SLF4J Simple | 2.0.12 | Logging backend for REST Assured |
+| AspectJ Weaver | 1.9.22 | Bytecode weaving for Allure `@Step` annotations |
+
+### Maven Plugins
+
+| Plugin | Version | Purpose |
+|---|---|---|
+| Maven Surefire | 3.2.5 | Test execution with AspectJ weaving agent (`-javaagent:aspectjweaver.jar`) |
+| Allure Maven | 2.12.0 | Allure HTML report generation (`reportVersion: 2.25.0`) |
 
 ---
 
@@ -70,14 +80,25 @@ Automated API testing project using **REST Assured** and **Java 17**, targeting 
 - Maven 3.6 or higher
 - (Optional) Allure CLI 2.25.0 for local report viewing
 
-### Run the tests
+### Base URL configuration
+
+The base URL can be configured in two ways (system property takes priority):
 
 ```bash
-# Run all tests
-mvn test
-
-# Run against a specific URL
+# Via system property (highest priority)
 mvn test -Dbase.url=https://serverest.dev
+
+# Via environment variable
+export BASE_URL=https://serverest.dev
+mvn test
+```
+
+If neither is set, the default URL `https://serverest.dev` is used.
+
+### Run all tests
+
+```bash
+mvn test
 ```
 
 ### Run individual tests
@@ -100,6 +121,8 @@ mvn test -Dtest="*Tests"       # all classes ending with "Tests"
 mvn test -Dtest="User*"        # all classes starting with "User"
 ```
 
+> **Note:** The `-Dtest` parameter requires Surefire 2.22.1+. This project uses 3.2.5.
+
 ### Generate Allure report
 
 ```bash
@@ -110,47 +133,216 @@ mvn allure:report
 allure serve target/allure-results
 ```
 
+### Run tests and open Allure report
+
+```bash
+# Run all tests then open report in browser
+mvn test; allure serve target/allure-results
+
+# Run all tests, generate HTML report, then open it
+mvn test; mvn allure:report; allure open target/site/allure-maven-plugin
+```
+
 ---
 
 ## Test Summary
 
-| Domain | Tests | Types |
-|---|---|---|
-| Authentication | 7 | Positive, Negative |
-| Users | 15 | Positive, Negative, E2E |
-| Products | 18 | Positive, Negative, E2E |
-| Cart | 11 | Positive, Negative |
-| **Total** | **~51** | |
+### Overview
+
+| Domain | Tests | Positive | Negative | E2E |
+|---|---|---|---|---|
+| Authentication | 7 | 2 | 5 | - |
+| Users | 15 | 7 | 7 | 1 |
+| Products | 18 | 6 | 11 | 1 |
+| Cart | 11 | 5 | 6 | - |
+| **Total** | **51** | **20** | **29** | **2** |
+
+### Test Methods
+
+#### AuthTests (Login)
+
+| Method | Type |
+|---|---|
+| `shouldLoginWithValidCredentials` | Positive |
+| `tokenShouldBeValid` | Positive |
+| `shouldReturn401WithInvalidEmail` | Negative |
+| `shouldReturn401WithInvalidPassword` | Negative |
+| `shouldReturn400WhenEmailIsBlank` | Negative |
+| `shouldReturn400WhenPasswordIsBlank` | Negative |
+| `shouldReturn400WithInvalidEmail` | Negative |
+
+#### UserTests (Usuarios)
+
+| Method | Type |
+|---|---|
+| `shouldCreateAdminUserSuccessfully` | Positive |
+| `shouldCreateRegularUserSuccessfully` | Positive |
+| `shouldGetAllUsers` | Positive |
+| `shouldGetUserById` | Positive |
+| `shouldGetUserByName` | Positive |
+| `shouldUpdateUserSuccessfully` | Positive |
+| `shouldDeleteUserSuccessfully` | Positive |
+| `shouldReturn400WhenEmailIsBlank` | Negative |
+| `shouldReturn400WhenPasswordIsBlank` | Negative |
+| `shouldReturn400WhenEmailAndPasswordAreBlank` | Negative |
+| `shouldUpdateNonExistentUser` | Negative |
+| `shouldReturn400WithInvalidUserId` | Negative |
+| `shouldReturn400WhenEmailAlreadyExists` | Negative |
+| `shouldNotDeleteUser` | Negative |
+| `shouldExecuteFullUserLifecycle` | E2E |
+
+#### ProductTests (Produtos)
+
+| Method | Type |
+|---|---|
+| `shouldCreateProductSuccessfully` | Positive |
+| `shouldGetAllProducts` | Positive |
+| `shouldGetProductById` | Positive |
+| `shouldGetProductByName` | Positive |
+| `shouldUpdateProductSuccessfully` | Positive |
+| `shouldDeleteProductSuccessfully` | Positive |
+| `shouldReturn400WhenPriceIsInvalid` | Negative |
+| `shouldReturn400WhenPriceZero` | Negative |
+| `shouldReturn400WhenQuantityIsInvalid` | Negative |
+| `shouldReturn401WhenTokenIsMissingOnUpdateProduct` | Negative |
+| `shouldReturn401WhenTokenIsMissingOnDeleteProduct` | Negative |
+| `shouldReturn400WhenProductAlreadyExists` | Negative |
+| `shouldReturn401WhenTokenIsMissingOnCreateProduct` | Negative |
+| `shouldReturn403WhenRegularUserCreatesProduct` | Negative |
+| `shouldReturn400WhenGettingProductByNonExistentId` | Negative |
+| `shouldUpdateNonExistentProduct` | Negative |
+| `shouldReturn200WhenDeletingNonExistentProduct` | Negative |
+| `shouldExecuteFullProductLifecycle` | E2E |
+
+#### CartTests (Carrinho)
+
+| Method | Type |
+|---|---|
+| `shouldCreateCartSuccessfully` | Positive |
+| `shouldGetAllCarts` | Positive |
+| `shouldGetCartById` | Positive |
+| `shouldConcludePurchaseSuccessfully` | Positive |
+| `shouldCancelPurchaseSuccessfully` | Positive |
+| `shouldReturn400WhenGetCartByNonExistentId` | Negative |
+| `shouldReturn400WhenCartAlreadyExists` | Negative |
+| `shouldReturn401WhenCreatingCartWithoutToken` | Negative |
+| `shouldReturn400WhenCreatingCartWithNonExistentProduct` | Negative |
+| `shouldReturn401WhenConcludingPurchaseWithoutToken` | Negative |
+| `shouldReturn401WhenCancelingPurchaseWithoutToken` | Negative |
 
 ---
 
 ## Architecture and Patterns
 
-- **Client Layer** — Each API domain has a dedicated client (`UserClient`, `ProductClient`, etc.) that encapsulates REST Assured calls, keeping tests clean and focused on assertions.
+### Client Layer
 
-- **Data Models (POJOs)** — Models with Jackson annotations for direct JSON-to-Java-object serialization and deserialization.
+Each API domain has a dedicated client that encapsulates REST Assured `given()`/`when()` calls, keeping tests clean and focused on assertions.
 
-- **DataFactory** — Dynamic test data generation using JavaFaker (Brazilian Portuguese locale), ensuring test isolation and avoiding hardcoded values.
+| Client | Endpoint | Methods |
+|---|---|---|
+| `AuthClient` | `/login` | `login(email, password)`, `getToken(email, password)` |
+| `UserClient` | `/usuarios` | `createUser()`, `getAllUsers()`, `getUserById()`, `getUserByName()`, `updateUser()`, `deleteUser()` |
+| `ProductClient` | `/produtos` | `createProduct()`, `getAllProducts()`, `getProductById()`, `getProductByName()`, `updateProduct()`, `deleteProduct()` |
+| `CartClient` | `/carrinhos` | `createCart()`, `getAllCarts()`, `getCartById()`, `concludePurchase()`, `cancelPurchase()` |
 
-- **JSON Schema Validation** — Every test validates the API response structure against a dedicated schema file, ensuring API contract compliance.
+Authentication is handled via `ApiConfig.getAuthRequestSpec(token)`, which adds the `Authorization` header. Unauthenticated endpoints use `ApiConfig.getRequestSpec()`.
 
-- **Environment Flexibility** — `EnvConfig` + system properties allow seamless switching between local and CI/CD environments without code changes.
+### Configuration
 
-- **Test Lifecycle** — `@BeforeEach` and `@AfterEach` manage setup (user creation, token acquisition) and teardown (resource cleanup) to prevent test pollution.
+**`ApiConfig`** — Thread-safe singleton that builds the REST Assured `RequestSpecification`:
+- Reads base URL from system property `base.url` → env var `BASE_URL` → default `https://serverest.dev`
+- Sets JSON content type for request and response
+- Applies 3 filters to every request: `AllureRestAssured` (auto-captures requests/responses), `RequestLoggingFilter`, `ResponseLoggingFilter`
+- `getAuthRequestSpec(token)` adds `Authorization` header with automatic Bearer prefix detection
 
-- **Allure Reporting** — Tests annotated with `@Epic`, `@Feature`, `@Story`, `@Severity`, `@Owner`, `@Description`, and `@Step` for rich, detailed reports.
+**`EnvConfig`** — Environment variable reader with priority chain: env var → system property → default value. `getRequired(key)` throws `IllegalStateException` if the value is missing.
+
+### Data Models (POJOs)
+
+Models use Jackson annotations for JSON serialization/deserialization:
+- `@JsonIgnoreProperties(ignoreUnknown = true)` — silently ignores unknown fields from API responses (forward-compatibility)
+- `@JsonInclude(NON_NULL)` — omits null fields when serializing (used on `User` and `Product` for partial updates)
+- Field names follow the ServeRest API contract in Portuguese: `nome`, `email`, `preco`, `descricao`, `quantidade`, `administrador`, `idProduto`
+
+### DataFactory
+
+Dynamic test data generation using JavaFaker with Brazilian Portuguese (`pt-BR`) locale:
+
+| Method | Purpose |
+|---|---|
+| `generateAdminUser()` | Admin user with `administrador: "true"` |
+| `generateRegularUser()` | Regular user with `administrador: "false"` |
+| `generateRegularUserWithoutEmail()` | User without email (negative tests) |
+| `generateRegularUserWithoutPassword()` | User without password (negative tests) |
+| `generateRegularUserWithoutEmailPassword()` | User without email and password (negative tests) |
+| `generateUserWithEmail(email)` | User with a specific email (duplicate tests) |
+| `generateProduct()` | Product with random name, price (10-5000), quantity (1-500) |
+| `generateEmail()` | Standalone email generator |
+| `generateName()` | Standalone name generator |
+| `generateInvalidId()` | 16-character random alphanumeric ID (non-existent resource tests) |
+
+### Test Lifecycle
+
+Not all test classes use the same lifecycle pattern:
+
+| Class | `@BeforeEach` | `@AfterEach` |
+|---|---|---|
+| `AuthTests` | - | Cleans up created users |
+| `UserTests` | - | Cleans up created users |
+| `ProductTests` | Creates admin user + acquires token | Cleans up product + user |
+| `CartTests` | Creates admin user + acquires token + creates product | Cancels cart + cleans up product + user |
+
+- `@AfterEach` uses try/catch/finally blocks to ensure each resource is cleaned up even if a prior cleanup fails
+- `CartTests` cancels the cart before deleting the product to replenish stock
+- E2E lifecycle tests null out `*ToCleanUp` variables before confirming deletion to prevent double-cleanup
+
+### JSON Schema Validation
+
+Every test validates the API response structure against a dedicated schema file (36 total), ensuring API contract compliance. All schemas use JSON Schema Draft-07 with `additionalProperties: false` for strict validation.
+
+| Domain | Schemas |
+|---|---|
+| `schemas/auth/` | `login-schema`, `unauthorized-schema`, `email-is-blank-schema`, `password-is-blank-schema`, `invalid-email-schema` |
+| `schemas/users/` | `create-user-schema`, `get-all-users-schema`, `get-user-by-id-schema`, `get-user-by-non-existent-id-schema`, `email-is-blank-schema`, `password-is-blank-schema`, `email-password-are-blank-schema`, `email-already-exists-schema`, `update-user-schema`, `delete-user-schema`, `not-delete-user-schema` |
+| `schemas/products/` | `create-product-schema`, `get-all-products-schema`, `get-product-by-id-schema`, `update-product-schema`, `delete-product-schema`, `delete-non-existent-product-schema`, `invalid-price-schema`, `invalid-quantity-schema`, `unauthorized-schema`, `product-already-exists-schema`, `product-not-found-schema`, `forbidden-schema` |
+| `schemas/carts/` | `create-cart-schema`, `get-all-carts-schema`, `get-cart-by-id-schema`, `conclude-cart-schema`, `cancel-cart-schema`, `cart-not-found-schema`, `cart-already-exists-schema`, `unauthorized-cart-schema` |
+
+### Allure Reporting
+
+Tests annotated with `@Epic`, `@Feature`, `@Story`, `@Severity`, `@Owner`, `@Description`, and `@Step` for rich, detailed reports.
+
+| Class | `@Epic` | `@Feature` |
+|---|---|---|
+| `AuthTests` | Login | Gestao de Autenticacao e Token |
+| `UserTests` | Usuarios | Gestao de Usuarios |
+| `ProductTests` | Produtos | Gestao de Produtos |
+| `CartTests` | Carrinho | Gestao de Carrinho |
+
+`@Step` annotations are used in E2E lifecycle tests (`shouldExecuteFullUserLifecycle`, `shouldExecuteFullProductLifecycle`) via private helper methods for detailed step-by-step reporting.
 
 ---
 
 ## CI/CD
 
-The pipeline is defined in `.github/workflows/api-tests.yml` and runs automatically on **push** and **pull requests** to the `master` branch:
+The pipeline is defined in `.github/workflows/api-tests.yml` and runs automatically on **push** and **pull requests** to the `master` branch.
 
-1. Checkout code
-2. Set up Java 17 (Temurin) with Maven cache
-3. Run tests: `mvn test -Dbase.url=https://serverest.dev`
-4. Generate Allure report
-5. Publish report to **GitHub Pages**
+### Pipeline Steps
+
+| Step | Description |
+|---|---|
+| 1. Checkout code | `actions/checkout@v4` |
+| 2. Setup Java 17 | `actions/setup-java@v4` (Temurin) with Maven cache |
+| 3. Download Allure history | Fetches previous `allure-history` artifact (90-day retention) for trend charts |
+| 4. Restore history | Copies history into `target/allure-results/history` |
+| 5. Run tests | `mvn test -Dbase.url=$BASE_URL` (env var: `https://serverest.dev`) |
+| 6. Copy categories | Copies `categories.json` to `target/allure-results/` for failure classification |
+| 7. Generate Allure report | `mvn allure:report` |
+| 8. Save history | Uploads current history for the next run |
+| 9. Upload artifacts | History (90 days) and results (30 days) |
+| 10. Deploy to GitHub Pages | `peaceiris/actions-gh-pages@v4` (only on `master` branch) |
+| 11. Job summary | Writes execution summary (branch, commit, report link) to `$GITHUB_STEP_SUMMARY` |
+
+> **Note:** Reporting and deployment steps run even when tests fail (`if: always()`).
 
 Report available at: https://geovanegustavo.github.io/API-Tests-RESTAssured-Java
 
@@ -160,10 +352,10 @@ Report available at: https://geovanegustavo.github.io/API-Tests-RESTAssured-Java
 
 The `categories.json` file classifies failures into 5 categories:
 
-| Category | Description |
-|---|---|
-| Schema Validation | Response does not conform to the expected JSON schema |
-| Status Code | Unexpected HTTP status code |
-| Body Assertion | Response body does not contain the expected value |
-| Connection Error | API connectivity failure |
-| Unexpected Error | Unmapped errors |
+| Categoria | Status | Regex |
+|---|---|---|
+| Falhas de contrato (JSON Schema) | `failed` | `.*doesn't match the expected JSON schema.*` |
+| Falhas de assercao de status code | `failed` | `.*Expected status code.*` |
+| Falhas de assercao de body | `failed` | `.*JSON path.*doesn't match.*` |
+| Erros de conexao com a API | `broken` | `.*Connection refused.*\|.*Unable to connect.*\|.*SocketException.*` |
+| Erros inesperados | `broken` | *(catch-all for unmatched `broken` tests)* |
