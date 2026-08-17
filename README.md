@@ -80,6 +80,26 @@ mvn test
 mvn test -Dbase.url=https://serverest.dev
 ```
 
+### Run individual tests
+
+```bash
+# Run a single test class
+mvn test -Dtest=UserTests
+
+# Run a single test method
+mvn test -Dtest=UserTests#shouldCreateUserWithSuccess
+
+# Run multiple methods from the same class
+mvn test -Dtest=UserTests#shouldCreateUserWithSuccess+shouldNotCreateUserWithDuplicateEmail
+
+# Run multiple test classes
+mvn test -Dtest=UserTests,AuthTests
+
+# Run tests using wildcards
+mvn test -Dtest="*Tests"       # all classes ending with "Tests"
+mvn test -Dtest="User*"        # all classes starting with "User"
+```
+
 ### Generate Allure report
 
 ```bash
